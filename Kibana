@@ -1,0 +1,135 @@
+# Get all index
+GET /_cat/indices?pretty
+
+#delete indices
+DELETE md_table_indx
+
+#create md_table_indx with custom setting for each field
+PUT md_table_indx
+{
+  "settings": {
+    "number_of_shards" : 3,
+    "number_of_replicas" : 2,
+    
+    "analysis": {
+     "normalizer": {
+       "my_normalizer": {
+        "type": "custom",
+        "filter": ["lowercase"]
+      }
+     },
+    
+     "analyzer": {
+        "my_analyzer": {
+          "tokenizer": "standard",
+          "filter": [
+            "lowercase", "ngram"
+          ]
+        }
+     },
+      
+      "filter": {
+        "ngram": {
+          "type": "edge_ngram",
+          "min_gram": 1,
+          "max_gram": 20,
+          "token_chars": [
+            "letter",
+            "white space",
+            "punctuation"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "tablestable": {
+      "properties": {
+       "ID": {"type": "integer"},
+       "Storage Type": {
+         "type": "text",
+         "fields":{
+           "normalize":{
+             "type":"keyword",
+             "normalizer":"my_normalizer"
+           }
+         }, 
+         "analyzer": "my_analyzer",
+         "search_analyzer": "simple",
+         "fielddata": true
+       },
+       "Source System":{
+         "type": "text",
+         "fields":{
+           "normalize":{
+             "type":"keyword",
+             "normalizer":"my_normalizer"
+           }
+         }, 
+         "analyzer": "my_analyzer",
+         "search_analyzer": "simple",
+         "fielddata": true
+       },
+       "Schema": {
+         "type": "text",
+         "fields":{
+           "normalize":{
+             "type":"keyword",
+             "normalizer":"my_normalizer"
+           }
+         }, 
+         "analyzer": "my_analyzer",
+         "search_analyzer": "simple",
+         "fielddata": true
+       },
+       "Table Name": {
+         "type": "text",
+         "fields":{
+           "normalize":{
+             "type":"keyword",
+             "normalizer":"my_normalizer"
+           }
+         }, 
+         "analyzer": "my_analyzer",
+         "search_analyzer": "simple",
+         "fielddata": true
+       },
+       "Table Description": {
+         "type": "text",
+          
+         "fields":{
+           "normalize":{
+             "type":"keyword",
+             "normalizer":"my_normalizer",
+             "null_value": "NULL"
+           }
+         }, 
+         "analyzer": "my_analyzer",
+         "search_analyzer": "simple",
+         "fielddata": true
+       },
+       "Row Count": {"type": "integer"},
+       "Data As Of Date": 
+       {
+        "format": "yyyy-MM-dd",
+        "type": "date"
+       },
+       "Updated Date": 
+       {
+        "format": "yyyy-MM-dd",
+        "type": "date"
+       },
+       "Data Domain":{
+         "type": "text",
+         "fields":{
+           "normalize":{
+             "type":"keyword",
+             "normalizer":"my_normalizer"
+           }
+         }, 
+         "fielddata": true
+       }
+      }
+    }
+  }
+}
